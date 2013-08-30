@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:background="@color/black" >
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="4dp"
+        android:contentDescription="@string/ObjectLogo"
+        android:src="@drawable/ic_launcher" >
+
+    </ImageView>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="84dp"
+        android:layout_weight="0.19"
+        android:contentDescription="@string/ObjectDiscription"
+        android:gravity="center_vertical"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/label"
+            android:layout_width="158dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="@string/ObjectDiscription"
+            android:maxLines="2"
+            android:minLines="1"
+            android:shadowColor="@color/gray"
+            android:text="@string/ObjectDiscription"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/statelabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:contentDescription="@string/ObjectStatus"
+            android:text="@string/ObjectStatus"
+            android:textColor="@color/silver"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="90dp"
+        android:layout_height="86dp"
+        android:layout_marginRight="5dp"
+        android:layout_weight="0.25" >
+
+        <ToggleButton
+            android:id="@+id/toggleButton1"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:contentDescription="@string/ObjectTogglebutton"
+            android:onClick="myClickHandler"
+            android:text="@string/ObjectTogglebutton"
+            android:textOff="@string/Wyl"
+            android:textOn="@string/Wl"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/textViewVal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:text="@string/ValueTest"
+            android:textColor="@color/white"
+            android:textSize="26sp"
+            android:typeface="serif"
+            android:visibility="visible" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="0dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:layout_marginTop="0dp"
+            android:contentDescription="@string/Value"
+            android:focusableInTouchMode="false" >
+
+            <ImageButton
+                android:id="@+id/buttonD"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:contentDescription="@string/ObjectDownButton"
+                android:onClick="myClickDownHandler"
+                android:src="@android:drawable/arrow_down_float"
+                android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/buttonU"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:contentDescription="@string/ObjectUpButton"
+                android:onClick="myClickUpHandler"
+                android:src="@android:drawable/arrow_up_float"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+</LinearLayout>

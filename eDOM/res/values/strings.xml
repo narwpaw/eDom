@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">eDOM</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="zamknij">Zamknij</string>
+    <string name="Ustawienia">Ustawienia</string>
+    <string name="StanyWejsc">Stany wejść</string>
+    <string name="Stany_wejsciowe">Stany wejściowe</string>
+    <string name="Wlaczone">Włączone</string>
+    <string name="Wylaczone">Wyłączone</string>
+    <string name="Wl">Wł.</string>
+    <string name="Wyl">Wył.</string>
+    <string name="LaunchObjectView">Przycisk uruchamiania przeglądu zmiennych</string>
+    <string name="ListenButton">Przycisk słuchaj</string>
+    <string name="Helper">Pomocnicze</string>
+    <string name="ObjectLogo">logo obiektu</string>
+    <string name="ObjectDiscription">Opis obiektu</string>
+    <string name="Value">Wartość</string>
+    <string name="ObjectTogglebutton">Przycisk obiektowy on/off</string>
+    <string name="ObjectDownButton">Przycisk obiektowy w dół</string>
+    <string name="ObjectUpButton">Przycisk objektowy w górę</string>
+    <string name="AplicationLogo">Logo aplikacji</string>
+    <string name="ObjectStatus">Stan obiektu</string>
+    <string name="ValueTest">20,4</string>
+    <string name="Caly_dom">Cały dom</string>
+
+</resources>
