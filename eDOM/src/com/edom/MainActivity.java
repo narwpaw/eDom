@@ -1,5 +1,4 @@
-//rev 0.3
-
+//Test 4
 package com.edom;
 
 import java.io.BufferedReader;
