@@ -277,7 +277,7 @@ public class MainActivity extends Activity {
 	    	  
 	    	  intent = new Intent(this, wwwActivity.class);
 	    	  intent.putExtra("WebSite", "http://www.ceuron.pl");
-
+//gggg
 		    break;   
 		    
 	        
