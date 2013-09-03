@@ -74,7 +74,7 @@ public class MainActivity extends Activity {
     private TextView mText;
     private SpeechRecognizer sr;
     private static final String TAG = "MainActivity";
-	
+	private Intent intentVoice;
 	
 	
 	SQLiteDatabase baza = null;
@@ -92,6 +92,18 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		
+		
+		//IntentVoice------------------------------------------------------------------------------------
+	        intentVoice = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);        
+	    	intentVoice.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+	    	intentVoice.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"voice.recognition.test");
+
+	    	intentVoice.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,5); 
+	   //---------------------------------------------------------------------------------------------
+		
+		
 		
 		
 		intent = new Intent(this, InputList.class);
@@ -409,44 +421,39 @@ public class MainActivity extends Activity {
              }
              public void onEndOfSpeech()
              {
+            	 Log.d("Voice analize", "onEndofSpeech");
             	      listenActive=false;
-            	      listenVoiceStart(); 
-                      Log.d("Voice analize", "onEndofSpeech");
+            	      
+            	      //listenVoiceStart(); 
+                      
              }
              public void onError(int error)
              {
             	 
             	 listenActive=false;
-            	 
+            	 //voiceServerBusy=true;
+       		     VoiceBar.setVisibility(View.INVISIBLE);
+       		     
+
                       Log.d("Voice analize",  "error " +  error);
                      // mText.setText("error " + error);
-                      if (error!=8) 
+                    if (error==sr.ERROR_RECOGNIZER_BUSY) 
                     	  {
-                    	  	  listenVoiceStart();  
+                    	 Log.d("Voice analize",  " ERROR_RECOGNIZER_BUSY -------------------------------");
+                    		 sr.cancel();
+                    	  	  
                     	  }else{
-                    		  voiceServerBusy=true;
-                    		  VoiceBar.setVisibility(View.INVISIBLE);
-                    		  
-                    			
-               
-/*                    			 timer = new Timer();
-                    			 timerTask = new TimerTask(){
-                    							
-                    				public void run(){
-                    					ForseStartListen();
-                    					timer.cancel();
-                    				}
-                    				
-                    			};
-                    			timer.schedule(timerTask, 100, 1000000);
-                    			*/
-                    		  
                     		  
                     	  }
+                    
+                    listenVoiceStart();  
                      
              }
              public void onResults(Bundle results)                   
              {
+            	 if (listenActive==false) listenVoiceStart(); 
+            	 
+            	 
                       String str = new String();
                       listenActive=false;
                       
@@ -513,7 +520,7 @@ public class MainActivity extends Activity {
                       
                       
                       
-                     if (listenActive==false) listenVoiceStart(); 
+                     
                       
                       
              }
@@ -544,53 +551,22 @@ public class MainActivity extends Activity {
 
     private void listenVoiceStart()
  	    {
- 	    	Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);        
- 	        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
- 	        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"voice.recognition.test");
+    		//sr.destroy();
 
- 	        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,5); 
- 	             sr.startListening(intent);
+ 	             sr.startListening(intentVoice);
+ 	             
+
  	             Log.i("Voice analize","lisenVoiceStart");
  	             
- 	             VoiceBar.setVisibility(View.VISIBLE);    
+ 	             VoiceBar.setVisibility(View.VISIBLE);   
+ 	         
+ 	           
  	             
  	    }
     
     
     
-    /*ImageButton  bt_voice = 	(ImageButton )findViewById(R.id.buttonVoice);
-	
-    bt_voice.setOnClickListener(new OnClickListener(){
-	        public void onClick(View view){
-                 Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);        
-                 intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                 intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"voice.recognition.test");
 
-                 intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,5); 
-                      sr.startListening(intent);
-                      Log.i("111111","11111111");
-             
-	        }
-	}); */
-    
-    
-  //Button lisen voice 
-/*    public void onClick(View v) {
-        if (v.getId() == R.id.buttonVoice) 
-        {
-        	lisenVoiceStart();
-        	mText.setText("S³ucham"); 
-        }
-    }*/
-        
-        
- /*       public void onClick(View v) {
-            if (v.getId() == R.id.buttonVoice) 
-            {
-            	FindPhrase("zamknij roletê w salonie");
-            }
-        }*/
-        
         
     	private enum Objectyp{
 			NONE,ALL,LIGHT,BLINDS 
@@ -920,373 +896,7 @@ private boolean FindPhrase(String str, boolean adjust) {
         }
     	
     	
-    	
-    	/*
-        private boolean FindPhrase(String str, boolean adjust) {
-			// TODO Auto-generated method stub
-		 	String WhereSeparator="";
-		 	String Where="";
-		 	String Where2="";
-		 	int  action=0; 
-		 	
-		 	//Log.d("Voice analize", "FindPhrase");
-		 	
-		 	
-		 	if ((str==null) || (str.length()<5)) return false;
-		 	
-		 	str.replace("'t", " not");
-		 	str.replace("'", " ");
-		 	
-		 	Log.d("Voice analize", "Analize fraze: "+str+"  adjust:"+adjust);
-		 	
-		 	String[] projection = { 
-		 			DataInTable.COLUMN_OBJECT_NAME,
-			    		DataInTable.COLUMN_OBJECT_TYPE,
-			    		DataInTable.COLUMN_OBJECT_PLACE,
-			    		DataInTable.COLUMN_OBJECT_FLOOR,
-			    		DataInTable.COLUMN_SIGNAL_ST_A,
-			    		DataInTable.COLUMN_SIGNAL_ST_B, 
-			    		DataInTable.COLUMN_SIGNAL_ST_C,
-			    		DataInTable.COLUMN_SIGNAL_ST_D,
-			    		DataInTable.COLUMN_VALUE_ST_A,
-			    		DataInTable.COLUMN_VALUE_ST_B,
-			    		DataInTable.COLUMN_VALUE_ST_C,
-			    		DataInTable.COLUMN_VALUE_ST_D,
-			    		DataInTable.COLUMN_UNIT_OFF,
-			    		DataInTable.COLUMN_UNIT_VALUE_A,
-			    		DataInTable.COLUMN_UNIT_VALUE_B,
-			    		DataInTable.COLUMN_UNIT_VALUE_C,
-			    		DataInTable.COLUMN_UNIT_VALUE_D,
-			    		DataInTable.COLUMN_ACTION_A,
-			    		DataInTable.COLUMN_ACTION_B,
-			    		DataInTable.COLUMN_TAGS_OBJECT,
-			    		DataInTable.COLUMN_TAGS_PLACE,
-			    		DataInTable.COLUMN_TAGS_DETAILS,
-			    		DataInTable.COLUMN_TAGS_COMMAND_A,
-			    		DataInTable.COLUMN_TAGS_COMMAND_B,
-		 			};
-		 	
-		 	
 
-		     WhereSeparator= "";
-		     
-
-		     String WordsTMP[] =str.split(" ");
-
-		     int countWords=0;
-		     if  (WordsTMP.length==0)
-		     {
-		    	 //Log.d("Voice analize", " -Can't split. Escape ");
-		    	 return false;
-		     }else{
-		    	 
-		    	 for (String singleWord: WordsTMP)
-			     {
-			     	if (singleWord.length()>3)
-			     	{
-			     		WordsTMP[countWords]=singleWord;
-			     		countWords++;
-			     	}
-			     } 
-		     }
-		     
-		     
-		     if (countWords==0){
-		
-		    	 return false;
-		     }
-		     
-
-		     String[] Words= new String[countWords];
-		     System.arraycopy(WordsTMP, 0, Words, 0, countWords);
-		     
-		     
-		     //cut ends of words
-		     if (adjust)
-		     {
-		    	 int k=0;
-		    	 for (String singleWord: Words)
-			     {
-		    		 if (singleWord.length()>5) Words[k]=singleWord.substring(0,singleWord.length()-2);
-		    		 k++;
-			     } 
-		     }
-		     
-		     
-
-		     String TMP_Words="";
-		     for (String singleWord: Words)
-		     {
-		    	 TMP_Words+=singleWord+", ";
-		     } 
-		     
-		     Log.d("Voice analize", " -Analize words: "+TMP_Words);
-		     
-		     
-		     
-		     
-		     //find object -----------------------------------------------------------------------------------------------
-		     WhereSeparator = " (";
-		     for (String singleWord: Words)
-		     {
-		     		Where+=WhereSeparator + DataInTable.COLUMN_TAGS_OBJECT+" like '%"+singleWord+"%'";
-			        	WhereSeparator= " or ";
-		     }
-		     Where+=")";
-		     
-		     Log.d("Voice analize", " -SQL Where "+Where);
-		     
-		     Cursor cursor = getContentResolver().query(DataInContentProvider.CONTENT_URI, projection,Where,null,null);
-		     
-		     
-	         		
-
-		     
-		     //if object not found
-		     if (cursor.getCount()==0) 
-		    	 {
-			    	 	Log.d("Voice analize", " -No objects found. Return");
-			    	 	Log.d("Voice analize", " -currentViewDiscriptionType: "+currentViewDiscriptionType); 
-			    	 	
-			    	 	if ((str.contains("cofnij")) || (str.contains("wróæ")) || (str.contains("wstacz"))  || (str.contains("wyjdŸ"))  || (str.contains("powrót"))  || (str.contains("zamknij okno"))   )
-						{
-							Log.i("Voice analize","Powrót");
-							
-							
-							if (InputList.active)
-			    			{
-			    				InputList.handleToClose.finish();
-			    			}
-							return true;
-						}
-			    	 	else if (currentViewDiscriptionType.length()>3)
-						{
-				   				Where=Where+" and "+currentViewDiscriptionType;
-				   			 cursor = getContentResolver().query(DataInContentProvider.CONTENT_URI, projection,Where,null,null);
-				   		     
-						}else{
-								 return false; 
-						}
-						
-		    	 }else{
-		    		 Log.d("Voice analize", " -Objects found: "+cursor.getCount()); 
-		    	 }
-		     
-		     
-		     
-		     
-		     
-		     Log.d("Voice analize", " -Words: "+Words.length); 
-		     
-		     //if words more then 2 (object name and order) then check place or other condition
-		     Cursor cursor2 = null;
-		     if (Words.length>2)
-		     {
-		    	
-		    	 	Where2=Where;
-					if (cursor.getCount()>1)
-					{
-						 //Log.d("Voice analize", " Words>2");  
-						
-				        WhereSeparator = " and (";
-				        for (String singleWord: Words)
-				        {
-	
-				        		Where+=WhereSeparator + DataInTable.COLUMN_TAGS_PLACE+" like '%"+singleWord+"%'";
-					        	WhereSeparator= " or ";
-				        }
-				        Where+=")";
-				        cursor = getContentResolver().query(DataInContentProvider.CONTENT_URI, projection,Where,null,null);
-				        Log.d("Voice analize", " -Places found: "+cursor.getCount());
-					}
-					
-					
-					if ((cursor.getCount()>1) || (cursor.getCount()==0))
-				     {
-							if (cursor.getCount()==0)  Where=Where2;
-						
-					        WhereSeparator = " and (";
-					        for (String singleWord: Words)
-					        {
-
-					        		Where+=WhereSeparator + DataInTable.COLUMN_TAGS_DETAILS+" like '%"+singleWord+"%'";
-						        	WhereSeparator= " or ";
-
-					        }
-					        Where+=")";
-					        cursor2 = getContentResolver().query(DataInContentProvider.CONTENT_URI, projection,Where,null,null); 
-					        Log.d("Voice analize", " -Positions found: "+cursor.getCount());
-				     }
-		     }        
-				
-			      
-
-		     //finding order
-		     boolean foundAction=false;
-		     
-
-		     if (cursor.getCount()>0)
-		     {    
-				 Log.d("Voice analize", " -Ready to action with "+cursor.getCount()+" objects");
-				 
-				    	if(cursor.moveToFirst())
-				    	{ //Metoda zwraca FALSE jesli cursor jest pusty
-				    		
-				    		String command_A="";
-				    		String command_B="";
-				    		
-				    		
-				    		do{
-						    		command_A=cursor.getString(cursor.getColumnIndex(DataInTable.COLUMN_TAGS_COMMAND_A));
-				    	    		command_B=cursor.getString(cursor.getColumnIndex(DataInTable.COLUMN_TAGS_COMMAND_B));
-				    	    		
-				    	    		Log.d("Voice analize", " -		Analize Command A: "+command_A);
-				    	    		
-				    	    		
-				    	    		action=0;
-				    	    		for (String singleWord: Words)
-					 		        {
-
-				    	    			    Log.d("Voice analize", " -		singleWord: "+singleWord);
-					 		        		if (command_A.contains(singleWord)) {
-					 		        		action=1;
-					 		        		Log.d("Voice analize", " -		Action 1");
-					 		        			break;
-					 		        			}
-
-					 		        }
-						    	
-				    	    		
-									if (action==0)
-									{
-										Log.d("Voice analize", " -		Analize Command B: "+command_B);
-						    		for (String singleWord: Words)
-					  	 		        {
-						    					Log.d("Voice analize", " -		singleWord: "+singleWord);
-
-					  	 		        		if (command_B.contains(singleWord)) {
-					  	 		        			Log.d("Voice analize", " -		Action 2");
-					  	 		        			action=2;
-					  	 		        			break;
-					  	 		        			}
-
-					  	 		        }
-									
-									}
-									
-									
-									Log.d("Voice analize", " 	-Ation type: "+command_A+"  on object: "+cursor.getString(cursor.getColumnIndex(DataInTable.COLUMN_OBJECT_NAME)));
-		
-									String typ=cursor.getString(cursor.getColumnIndex(DataInTable.COLUMN_OBJECT_TYPE));
-									String signal=cursor.getString(cursor.getColumnIndex(DataInTable.COLUMN_ACTION_A));
-									if (action==1)
-									{
-										foundAction=true;
-								  		
-								  		if ((typ.startsWith("rolet")) || (typ.startsWith("blind")))
-								    	{
-								  			SendAction(signal, "2");
-								    	}else{
-
-								    		SendAction(signal, "1");
-								    	}
-								  	}
-									else if (action==2)
-									{
-										foundAction=true;
-										
-										if ((typ.startsWith("rolet")) || (typ.startsWith("blind")))
-								    	{
-										    signal=cursor.getString(cursor.getColumnIndex(DataInTable.COLUMN_ACTION_B));
-					
-										    SendAction(signal, "2");
-								    	}else{
-								    		
-								    		SendAction(signal, "0");
-								    	}
-								  	}
-				    		}while(cursor.moveToNext());
-
-				    	}//END cursor.moveToFirst())
-		 	}
-			 
-			 
-			 
-			 
-			 
-			 
-		//Action inside application
-			String FilterObject="";
-			String FilterObjectSeparator="";
-			String FilterPlace="";
-			String FilterPlaceSeparator="";
-			
-			if (!foundAction) 
-		 	{
-				if ((cursor.getCount()>0) &&  ((str.contains("poka¿")) || (str.contains("wyœwietl")) ||  (str.contains("daj")) ||  (str.contains("otwórz okno"))   || (str.contains("widok"))  ))
-			     {
-					if(cursor.moveToFirst())
-			    	{ //Metoda zwraca FALSE jesli cursor jest pusty
-			    		
-			    		String get_str="";
-
-		    		do{
-		    		
-			    			get_str=cursor.getString(cursor.getColumnIndex(DataInTable.COLUMN_OBJECT_TYPE));
-			    			if ((!FilterObject.contains(get_str)) && (get_str.length()>2)) 
-			    				{
-			    					FilterObject=FilterObject+FilterObjectSeparator+get_str;
-			    					FilterObjectSeparator=", ";
-			    				}
-			    			
-			    			
-			    			if (Words.length>2)
-			    			{
-			    			get_str=cursor.getString(cursor.getColumnIndex(DataInTable.COLUMN_OBJECT_PLACE));
-			    			if ((!FilterPlace.contains(get_str)) && (get_str.length()>2))
-			    				{
-			    					FilterPlace=FilterPlace+FilterPlaceSeparator+get_str;
-			    					FilterPlaceSeparator=", ";
-			    				}
-			    			}
-	
-			    		}while(cursor.moveToNext());
-
-			    	}//END cursor.moveToFirst())
-					
-					if (InputList.active)
-	    			{
-	    				InputList.handleToClose.finish();
-	    			}
-					if ((FilterObject!=null) && (FilterObject.length()>2)) intent.putExtra("filterObject", FilterObject);
-					if ((FilterPlace!=null) && (FilterPlace.length()>2)) intent.putExtra("filterPlace", FilterPlace);
-			    	startActivity(intent);
-			    	intent.putExtra("filterPlace", "");
-				    intent.putExtra("filterObject", "");
-				    return true;
-					
-			    }
-		
-		 	}
-			 
-			 
-			 
-			 
-				
-			 Log.d("Voice analize", " 	-Analise finish. Return: "+action); 
-
-			 
-			if (foundAction)
-			{
-				
-				return true;
-			}else{
-				return false;
-			}
-			    		   
-		 } 
-		       
-            */
        
     	
     	
@@ -1359,11 +969,17 @@ void makeVoiceAnalizeList()
 	    		if (voiceAnlizeAPIOpenOrdersList.indexOf("wyœwietl")==-1) voiceAnlizeAPIOpenOrdersList.append("wyœwietl"+"\n");
 	    		if (voiceAnlizeAPIOpenOrdersList.indexOf("daj")==-1) voiceAnlizeAPIOpenOrdersList.append("daj"+"\n");
 	    		if (voiceAnlizeAPIOpenOrdersList.indexOf("widok")==-1) voiceAnlizeAPIOpenOrdersList.append("widok"+"\n");
+	    		if (voiceAnlizeAPIOpenOrdersList.indexOf("wejdŸ")==-1) voiceAnlizeAPIOpenOrdersList.append("wejdŸ"+"\n");
+	    		if (voiceAnlizeAPIOpenOrdersList.indexOf("prezentuj")==-1) voiceAnlizeAPIOpenOrdersList.append("prezentuj"+"\n");
+	    		if (voiceAnlizeAPIOpenOrdersList.indexOf("demonstruj")==-1) voiceAnlizeAPIOpenOrdersList.append("demonstruj"+"\n");
+	    		
 
 	    		if (voiceAnlizeAPICloseOrdersList.indexOf("cofnij")==-1) voiceAnlizeAPICloseOrdersList.append("cofnij"+"\n");
 	    		if (voiceAnlizeAPICloseOrdersList.indexOf("wróæ")==-1) voiceAnlizeAPICloseOrdersList.append("wróæ"+"\n");
 	    		if (voiceAnlizeAPICloseOrdersList.indexOf("wstacz")==-1) voiceAnlizeAPICloseOrdersList.append("wstacz"+"\n");
 	    		if (voiceAnlizeAPICloseOrdersList.indexOf("wyjdŸ")==-1) voiceAnlizeAPICloseOrdersList.append("wyjdŸ"+"\n");
+	    		if (voiceAnlizeAPICloseOrdersList.indexOf("powrót")==-1) voiceAnlizeAPICloseOrdersList.append("powrót"+"\n");
+	    		if (voiceAnlizeAPICloseOrdersList.indexOf("opuœæ")==-1) voiceAnlizeAPICloseOrdersList.append("opuœæ"+"\n");
 
 	    		
 	    	  }while(cursor.moveToNext());
