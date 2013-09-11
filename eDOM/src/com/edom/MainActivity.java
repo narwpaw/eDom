@@ -1,4 +1,4 @@
-//Test 4
+//Test 5
 package com.edom;
 
 import java.io.BufferedReader;
@@ -117,7 +117,7 @@ public class MainActivity extends Activity {
 		ContentValues entry = new ContentValues();
 		
 		
-		VoiceBar = (ProgressBar)findViewById(R.id.progressBar1); 
+		VoiceBar = (ProgressBar)findViewById(R.id.progressBarRight); 
 		
 		
 		//ImageButton btTmp = (ImageButton)findViewById(R.id.button_all_home);
@@ -406,13 +406,13 @@ public class MainActivity extends Activity {
              }
              public void onRmsChanged(float rmsdB)
              {
-                      //Log.d(TAG, "onRmsChanged");
-            	 	  listenActive=true;
-            	      if ((int)rmsdB>VoiceBar.getMax()){
-            	    	  VoiceBar.setMax((int)rmsdB);
-            	      }
-                      VoiceBar.setProgress((int) rmsdB);
-                      //mText.setText("S³yszê: "+rmsdB); 
+                  
+//            	 	  listenActive=true;
+//            	      if ((int)rmsdB>VoiceBar.getMax()){
+//            	    	  VoiceBar.setMax((int)rmsdB);
+//            	      }
+//                      VoiceBar.setProgress((int) rmsdB);
+              
              }
              
              public void onBufferReceived(byte[] buffer)
