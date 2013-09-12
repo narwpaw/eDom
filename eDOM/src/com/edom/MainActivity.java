@@ -12,9 +12,9 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -36,7 +36,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ProgressBar;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,7 +49,9 @@ import com.edom.database.DataInTable;
 public class MainActivity extends Activity {
 
 	public TextView tw;
-
+	public ImageView MicrophonView;
+	public ImageView MicrophonGlameView;
+	
 	public int licznik=0;
 	public static final ArrayList<String> DataIn = new ArrayList<String>();  
 	
@@ -59,7 +61,8 @@ public class MainActivity extends Activity {
 	
 	public static String currentViewDiscriptionType="";
 	public static String currentViewDiscriptionPlace="";
-	
+
+	int LastRms[]= new int[10];
 	  
 	StringBuffer voiceAnlizeObjectList= new StringBuffer(); 
 	StringBuffer voiceAnlizePlaceList= new StringBuffer();  
@@ -85,8 +88,9 @@ public class MainActivity extends Activity {
     private Timer timer;
     private TimerTask timerTask;
     Intent intent;
-    ProgressBar VoiceBar;
+
     boolean voiceServerBusy=false;
+    char 	endOfSpeachWait;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -117,13 +121,14 @@ public class MainActivity extends Activity {
 		ContentValues entry = new ContentValues();
 		
 		
-		VoiceBar = (ProgressBar)findViewById(R.id.progressBarRight); 
-		
+
 		
 		//ImageButton btTmp = (ImageButton)findViewById(R.id.button_all_home);
 		//btTmp.setAlpha(100);
 		
-
+		MicrophonView  = (ImageView)findViewById(R.id.microphone);	
+		MicrophonGlameView  = (ImageView)findViewById(R.id.mikrophone_tlo);	
+		MicrophonGlameView.setAlpha(2);
 		
 		Uri.encode("<?xml version='1.0' encoding='utf-8'?>");
 		getContentResolver().delete(DataInContentProvider.CONTENT_URI, null, null);
@@ -200,7 +205,7 @@ public class MainActivity extends Activity {
 		
 		
 
-        startService(new Intent(MainActivity.this,myService.class));
+        //startService(new Intent(MainActivity.this,myService.class));
 
               
         
@@ -247,6 +252,14 @@ public class MainActivity extends Activity {
   		    	licznik++;
   		    	TextView TextCounter = (TextView) findViewById(R.id.textlicz);     
   		    	 TextCounter.setText("nr."+licznik);
+  		    	 
+  		    	 if (endOfSpeachWait==1)
+  		    	 {
+  		    		Log.d("Voice analize",  " listenVoiceStart forse");
+  		    		listenVoiceStart();  
+  		    	 }
+  		    	 if (endOfSpeachWait>0)endOfSpeachWait--;
+  		    	 
   		    	
   		    };
     };
@@ -395,6 +408,7 @@ public class MainActivity extends Activity {
     	
              public void onReadyForSpeech(Bundle params)
              {
+            	 	  endOfSpeachWait=0;
             	 	  listenActive=true;
                       Log.d("Voice analize", "onReadyForSpeech");
              }
@@ -402,16 +416,26 @@ public class MainActivity extends Activity {
              {
             	      listenActive=true;
                       Log.d("Voice analize", "onBeginningOfSpeech");
-                      VoiceBar.setVisibility(View.VISIBLE);
+                      MicrophonView.setVisibility(View.VISIBLE);
              }
              public void onRmsChanged(float rmsdB)
              {
-                  
-//            	 	  listenActive=true;
-//            	      if ((int)rmsdB>VoiceBar.getMax()){
-//            	    	  VoiceBar.setMax((int)rmsdB);
-//            	      }
-//                      VoiceBar.setProgress((int) rmsdB);
+            	 int Val=(int)(rmsdB*3);
+            	 endOfSpeachWait=0;
+            	 MicrophonView.setAlpha(0xFF);
+            	 for(char i=5; i>1; i--)
+            	 {
+            		 Val+=LastRms[i]/(i/2);
+            		 LastRms[i]=LastRms[i-1];
+            	 }
+            	 Val+=LastRms[0];
+            	 Val+=40;
+            	 
+            	 
+            	 if (Val>60) Val=60;
+
+            	 MicrophonGlameView.setAlpha(Val); 
+
               
              }
              
@@ -425,6 +449,9 @@ public class MainActivity extends Activity {
             	      listenActive=false;
             	      
             	      //listenVoiceStart(); 
+            	      MicrophonView.setAlpha(80);
+            	      MicrophonGlameView.setAlpha(0); 
+            	      endOfSpeachWait=2;
                       
              }
              public void onError(int error)
@@ -432,7 +459,8 @@ public class MainActivity extends Activity {
             	 
             	 listenActive=false;
             	 //voiceServerBusy=true;
-       		     VoiceBar.setVisibility(View.INVISIBLE);
+            	 MicrophonView.setAlpha(80);
+       	         MicrophonGlameView.setAlpha(0); 
        		     
 
                       Log.d("Voice analize",  "error " +  error);
@@ -451,6 +479,7 @@ public class MainActivity extends Activity {
              }
              public void onResults(Bundle results)                   
              {
+            	 endOfSpeachWait=0;
             	 if (listenActive==false) listenVoiceStart(); 
             	 
             	 
@@ -558,7 +587,9 @@ public class MainActivity extends Activity {
 
  	             Log.i("Voice analize","lisenVoiceStart");
  	             
- 	             VoiceBar.setVisibility(View.VISIBLE);   
+ 	            MicrophonView.setVisibility(View.VISIBLE);  
+ 	            MicrophonGlameView.setVisibility(View.VISIBLE); 
+ 	           
  	         
  	           
  	             

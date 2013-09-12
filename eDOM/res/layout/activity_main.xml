@@ -181,18 +181,29 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1" >
+            android:layout_gravity="center_vertical|center_horizontal" >
 
-            <ProgressBar
-                android:id="@+id/progressBarRight"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="100dp"
-                android:layout_height="10dp"
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="62dp"
                 android:layout_gravity="center_vertical|center_horizontal"
-                android:indeterminate="false"
-                android:max="50"
-                android:progress="50"
-                android:visibility="visible" />
+                android:layout_weight="1" >
+
+                <ImageView
+                    android:id="@+id/mikrophone_tlo"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:src="@drawable/microphone_tlo" />
+
+                <ImageView
+                    android:id="@+id/microphone"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:src="@drawable/microphone" />
+
+            </FrameLayout>
         </LinearLayout>
 
     </LinearLayout>
