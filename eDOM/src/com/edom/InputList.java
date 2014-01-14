@@ -20,9 +20,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -46,6 +49,7 @@ public class InputList extends Activity {
 	private String filterPlace;
 	private String filterDetails;
     private Timer timer;
+    private Timer timer2;
     private TimerTask timerTask;
     public static Activity handleToClose;
     public static boolean active = false;
@@ -69,6 +73,9 @@ public class InputList extends Activity {
 	ArrayList<String> lastValueC = new ArrayList<String>();	
 	ArrayList<String> lastValueD = new ArrayList<String>();	
 	
+	public ImageView MicrophonView;
+	public ImageView MicrophonGlameView;
+	Intent intent;
 	
   	String[] projection = { 
   			DataInTable.COLUMN_OBJECT_NAME,
@@ -105,7 +112,9 @@ public class InputList extends Activity {
         
         list =  (ListView) findViewById(R.id.listView1);
 
-         
+        MicrophonView  = (ImageView)findViewById(R.id.microphone);	
+		MicrophonGlameView  = (ImageView)findViewById(R.id.mikrophone_tlo);	
+		MicrophonGlameView.setAlpha(2);
         
         active=true;
         handleToClose = this;
@@ -122,7 +131,7 @@ public class InputList extends Activity {
         
         
         
-        Intent intent = getIntent();
+        intent = getIntent();
         filterObjectType=null;
         filterPlace=null;
         filterObjectType = intent.getStringExtra("filterObjectType");
@@ -255,8 +264,7 @@ public class InputList extends Activity {
 	        Cursor cursor = getContentResolver().query(DataInContentProvider.CONTENT_URI, new String[] {DataInTable.COLUMN_OBJECT_NAME, DataInTable.COLUMN_OBJECT_TYPE, DataInTable.COLUMN_OBJECT_PLACE,DataInTable.COLUMN_OBJECT_FLOOR}, " 1=1 ) GROUP BY ("+DataInTable.COLUMN_OBJECT_PLACE,null,null);		
 	        
 	
-		    	   
-	        //List<String> spinnerListTMP=new ArrayList<String>();
+
 	        List<String> spinnerListFiltrTMP=new ArrayList<String>();
 	        int SpinerItem=0;
 	        int idx=0;
@@ -302,8 +310,6 @@ public class InputList extends Activity {
 	        	}
 	        
 	        	SpinerItem=0;
-	        	
-	        	
 	        }
 	        
 	        
@@ -395,12 +401,57 @@ public class InputList extends Activity {
 	    	
 		
 		timer.schedule(timerTask, 100, 1000);
+		
+		
+		
+		
+		
+		
+		
+		
+		 timer2 = new Timer();
+		 timerTask = new TimerTask(){
+						
+			public void run(){
+		
+				
+				//intent = getIntent();
+				//MicrophonGlameView.setAlpha(intent.getIntExtra("equalizer", 10)); 
+				
+			}
+			
+		};
+		timer2.schedule(timerTask, 100, 100);
+		
+		
 
         
     }
 
 
 
+    
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.menu_zamknij, menu);
+		return true;
+	}
+	
+	@Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+ 
+        String ktoryElement = "";
+ 
+        switch (item.getItemId()) {
+ 
+        case R.id.menu_zamknij:
+        	this.finish();
+            break;
+        }
+
+        return true;
+    }
  
 
     
@@ -418,21 +469,6 @@ public class InputList extends Activity {
 
   		    
   		    	valueChanged =false;
-  		    	
-  		    	
-  		    	
-  		    	
-
-  		    	
-
-  		   
-  		    	
-  		 
-  		    	
-  		    	
-  		    	
-  		    	
-  		    	
   		    	
   		    	
   		    	Cursor cursor = getContentResolver().query(DataInContentProvider.CONTENT_URI, projection, whereSQL, null,null);

@@ -17,166 +17,179 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_weight="1"
-        android:contentDescription="@string/Helper"
-        android:orientation="horizontal"
-        android:visibility="visible" >
+        android:layout_height="94dp"
+        android:orientation="vertical" >
 
-        <ImageButton
-            android:id="@+id/Button1"
-            android:layout_width="90dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|center_horizontal"
-            android:alpha="1"
-            android:background="@layout/mybutton"
-            android:maxHeight="80dp"
-            android:maxWidth="80dp"
-            android:onClick="ButtonOnClick"
-            android:scaleType="centerInside"
-            android:src="@drawable/lights"
-            android:visibility="visible" />
-
-        <ImageButton
-            android:id="@+id/Button2"
-            android:layout_width="90dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|center_horizontal"
-            android:layout_marginLeft="8dp"
-            android:alpha="1"
-            android:background="@layout/mybutton"
-            android:maxHeight="80dp"
-            android:maxWidth="80dp"
-            android:onClick="ButtonOnClick"
-            android:scaleType="centerInside"
-            android:src="@drawable/blinds"
-            android:visibility="visible" />
-
-        <ImageButton
-            android:id="@+id/Button3"
-            android:layout_width="90dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|center_horizontal"
-            android:layout_marginLeft="8dp"
-            android:alpha="1"
-            android:background="@layout/mybutton"
-            android:maxHeight="90dp"
             android:maxWidth="90dp"
-            android:onClick="ButtonOnClick"
-            android:scaleType="centerInside"
-            android:src="@drawable/themperature"
-            android:visibility="visible" />
+            android:layout_weight="1"
+            android:contentDescription="@string/Helper"
+            android:gravity="center|center_horizontal"
+            android:orientation="horizontal"
+            android:visibility="visible" >
+
+            <ImageButton
+                android:id="@+id/Button2"
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:alpha="1"
+                android:background="@layout/mybutton"
+                android:maxHeight="90dp"
+                android:maxWidth="90dp"
+                android:onClick="ButtonOnClick"
+                android:scaleType="centerInside"
+                android:src="@drawable/lights"
+                android:visibility="visible" />
+
+            <ImageButton
+                android:id="@+id/Button1"
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:alpha="1"
+                android:background="@layout/mybutton"
+                android:maxHeight="90dp"
+                android:maxWidth="90dp"
+                android:onClick="ButtonOnClick"
+                android:scaleType="centerInside"
+                android:src="@drawable/blinds"
+                android:visibility="visible" />
+
+            <ImageButton
+                android:id="@+id/Button3"
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:layout_marginLeft="8dp"
+                android:alpha="1"
+                android:background="@layout/mybutton"
+                android:maxHeight="90dp"
+                android:maxWidth="90dp"
+                android:onClick="ButtonOnClick"
+                android:scaleType="centerInside"
+                android:src="@drawable/themperature"
+                android:visibility="visible" />
+        </LinearLayout>
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="94dp"
         android:layout_marginTop="8dp"
-        android:layout_weight="1"
-        android:dividerPadding="@dimen/activity_horizontal_margin"
-        android:visibility="visible" >
+        android:orientation="vertical" >
 
-        <ImageButton
-            android:id="@+id/ImageButton05"
-            android:layout_width="90dp"
-            android:layout_height="match_parent"
-            android:alpha="1"
-            android:background="@layout/mybutton"
-            android:maxHeight="70dp"
-            android:maxWidth="70dp"
-            android:onClick="ButtonOnClick"
-            android:scaleType="centerInside"
-            android:src="@drawable/door"
-            android:visibility="visible" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:contentDescription="@string/Helper"
+            android:gravity="center|center_horizontal"
+            android:maxWidth="90dp"
+            android:orientation="horizontal"
+            android:visibility="visible" >
 
-        <ImageButton
-            android:id="@+id/www"
-            android:layout_width="90dp"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="8dp"
-            android:alpha="1"
-            android:background="@layout/mybutton"
-            android:maxHeight="70dp"
-            android:maxWidth="70dp"
-            android:onClick="ButtonOnClick"
-            android:scaleType="centerInside"
-            android:src="@drawable/fan"
-            android:visibility="visible" />
+            <ImageButton
+                android:id="@+id/Button5"
+                android:layout_width="90dp"
+                android:layout_height="match_parent"
+                android:alpha="1"
+                android:background="@layout/mybutton"
+                android:maxHeight="90dp"
+                android:maxWidth="90dp"
+                android:onClick="ButtonOnClick"
+                android:scaleType="centerInside"
+                android:src="@drawable/door"
+                android:visibility="visible" />
 
-        <ImageButton
-            android:id="@+id/Button6"
-            android:layout_width="90dp"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="8dp"
-            android:alpha="1"
-            android:background="@drawable/button"
-            android:maxHeight="70dp"
-            android:maxWidth="70dp"
-            android:onClick="ButtonOnClick"
-            android:scaleType="centerInside"
-            android:src="@drawable/www"
-            android:visibility="visible" />
+            <ImageButton
+                android:id="@+id/Button4"
+                android:layout_width="90dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="8dp"
+                android:alpha="1"
+                android:background="@layout/mybutton"
+                android:maxHeight="90dp"
+                android:maxWidth="90dp"
+                android:onClick="ButtonOnClick"
+                android:scaleType="centerInside"
+                android:src="@drawable/fan"
+                android:visibility="visible" />
+
+            <ImageButton
+                android:id="@+id/Button6"
+                android:layout_width="90dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="8dp"
+                android:alpha="1"
+                android:background="@drawable/button"
+                android:maxHeight="90dp"
+                android:maxWidth="90dp"
+                android:onClick="ButtonOnClick"
+                android:scaleType="centerInside"
+                android:src="@drawable/www"
+                android:visibility="visible" />
+        </LinearLayout>
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="236dp"
-        android:layout_marginTop="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="30dp"
         android:layout_weight="0.23"
         android:orientation="vertical" >
 
-        <ImageButton
-            android:id="@+id/button_all_home"
-            android:layout_width="110dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center_vertical|center_horizontal"
-            android:layout_margin="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="20dp"
-            android:layout_weight="1"
-            android:background="@layout/mybutton"
-            android:contentDescription="@string/LaunchObjectView"
-            android:drawablePadding="-15sp"
-            android:maxHeight="100dp"
-            android:maxWidth="100dp"
-            android:onClick="ButtonOnClick"
-            android:scaleType="centerInside"
-            android:src="@drawable/home"
-            android:text="this is text"
-            android:visibility="visible" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="106dp"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="104dp"
+                android:orientation="vertical" >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/Helper"
+                    android:gravity="center|center_horizontal"
+                    android:maxWidth="100dp"
+                    android:orientation="horizontal"
+                    android:visibility="visible" >
+
+                    <ImageButton
+                        android:id="@+id/button_all_home"
+                        android:layout_width="110dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|center_horizontal"
+                        android:alpha="1"
+                        android:background="@layout/mybutton"
+                        android:maxHeight="90dp"
+                        android:maxWidth="90dp"
+                        android:onClick="ButtonOnClick"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/home"
+                        android:visibility="visible" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/imageView1"
             android:layout_width="141dp"
-            android:layout_height="50dp"
+            android:layout_height="46dp"
             android:layout_gravity="center_vertical|center_horizontal"
             android:adjustViewBounds="true"
             android:alpha="0.5"
             android:contentDescription="@string/AplicationLogo"
             android:src="@drawable/logo" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/textView1"
-                android:layout_width="124dp"
-                android:layout_height="wrap_content"
-                android:textColor="@color/white"
-                android:visibility="visible" />
-
-            <TextView
-                android:id="@+id/textlicz"
-                android:layout_width="22dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_weight="0.62"
-                android:contentDescription="@string/LaunchObjectView"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -202,10 +215,8 @@
                     android:layout_height="40dp"
                     android:layout_gravity="center_vertical|center_horizontal"
                     android:src="@drawable/microphone" />
-
             </FrameLayout>
         </LinearLayout>
-
     </LinearLayout>
 
 </LinearLayout>

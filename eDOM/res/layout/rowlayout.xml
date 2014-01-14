@@ -59,15 +59,19 @@
 
         <ToggleButton
             android:id="@+id/toggleButton1"
-            android:layout_width="match_parent"
+            android:layout_width="90dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
             android:contentDescription="@string/ObjectTogglebutton"
+            android:includeFontPadding="false"
+            android:maxWidth="64dp"
+            android:minHeight="50dp"
             android:onClick="myClickHandler"
             android:text="@string/ObjectTogglebutton"
             android:textOff="@string/Wyl"
             android:textOn="@string/Wl"
-            android:visibility="gone" />
+            android:visibility="visible"
+            android:width="90dp" />
 
         <TextView
             android:id="@+id/textViewVal"

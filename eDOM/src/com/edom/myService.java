@@ -10,10 +10,12 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
-import android.annotation.SuppressLint;
+
+import android.app.Activity;
 import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.IBinder;
@@ -21,6 +23,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.edom.contentprovider.DataInContentProvider;
 import com.edom.database.DataInTable;
 
@@ -32,17 +35,21 @@ public class myService extends Service  {
 	 }
 	 
 	SQLiteDatabase baza = null;
-	CharSequence uri = "http://www.ceuron.pl/Test/di3131385.csv"; 
+	CharSequence uri;// = "http://www.ceuron.pl/Test/di3131385.csv"; 
+	//CharSequence uri="http://www.ceuron.pl/Test/di3131385.csv"; 
 	private final String DB_NAME = "ceuron.db";	
 	ArrayList<String> lastValue = new ArrayList<String>();
 	boolean FirstLope=true;
 	private Timer timer;
 	private TimerTask timerTask;
+	private SharedPreferences preferences;
 	
 	 @Override
 	 public void onCreate() {
 	  super.onCreate();
 	  
+	  
+	  Log.d("eDom","Start service Create");
 	  
 	  
 	  if (!FirstLope) Toast.makeText(this, "Us³uga Ceuron uruchomiona!", Toast.LENGTH_LONG).show();  
@@ -51,6 +58,14 @@ public class myService extends Service  {
 	  okresowePowiadomienie();
 	  
 	  
+	  
+	  
+	  
+		preferences = getSharedPreferences("myPrefs", Activity.MODE_PRIVATE);
+		String website=preferences.getString("website", "");
+		String controller_id=preferences.getString("controller_id", "");
+		uri=website+"/di"+controller_id+".csv";
+
 	  
 	  
 	  
@@ -89,6 +104,8 @@ public class myService extends Service  {
 	 
 	 
 	 
+
+	 
 	 
 
 
@@ -102,11 +119,17 @@ public class myService extends Service  {
   		    	Log.d("my service", "Service start");
 				
 		    	
+
+  				preferences = getSharedPreferences("myPrefs", Activity.MODE_PRIVATE);
+  				String website=preferences.getString("website", "");
+  				String controller_id=preferences.getString("controller_id", "");
+  				uri=website+"/di"+controller_id+".csv";
+  		    	
 					
 					String st=urlGet(String.valueOf(uri));
 
-
-		    		if (st.length()==0) return;
+					
+		    		if ((st==null) || (st.length()==0)) return;
 		    		
 		    		Log.d("my service", "Service start row split");	
 		    		String STAB[]=st.split("\n");
@@ -122,6 +145,7 @@ public class myService extends Service  {
 
 					ContentValues values = new ContentValues();
 					
+					Log.d("eDom","Pobrano: "+STAB[15]);
 					
 					
 					if (STAB.length>1)
@@ -132,6 +156,9 @@ public class myService extends Service  {
 						
 					    valueChanged=false;	
 				
+					    
+					    
+					    
 					    //Log.d("my service", "Service start col split:"+STAB[i]);
 
 					    
@@ -142,7 +169,7 @@ public class myService extends Service  {
 	  	  	    	       {
 	  	  	    	    	   valueChanged=true;
 	  	  	    	    	   lastValue.add(STAB1[1]);
-	  	  	    	    	Log.d("my service", "First lope");
+	  	  	    	    	   Log.d("my service", "First service lope");
 	  	  	    	        
 	  	  	    	       }else if ((!lastValue.get(i-1).equalsIgnoreCase(STAB1[1])) || (STAB1[0].equalsIgnoreCase("")))
 	  	  	    	       {
@@ -234,9 +261,7 @@ public class myService extends Service  {
 		  }  
 		  Log.d("my service", "urlGet end");
 			
-			
-		//String string="; i0106;0 i0107;0 b20;0 b04;0 q1800;0 q1801;0 q1700;0 q1900;0 b70;0 r0201;24.0 i0304;0 i0305;1 i0306;0 i0307;0 c03;24.0 c13;20.9 d43;0 d03;0 i0104;0 i0105;1 i0106;0 i0107;0 r1001;19.9 ";
-			
+
 		  return string;
 }
 	
@@ -253,6 +278,8 @@ public class myService extends Service  {
 	  //baza.close();	
 	  timer.cancel();
 	  timerTask.cancel();
-	  Toast.makeText(this, "Us³uga Ceuron zosta³a zamkniêta!", Toast.LENGTH_LONG).show();
+
+	  Toast.makeText(this, "Us³uga Ceuron zosta³a zamkniêta!", Toast.LENGTH_SHORT).show();
+
 	 }
 }

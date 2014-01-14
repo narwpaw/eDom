@@ -12,22 +12,28 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.StrictMode;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -36,6 +42,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,16 +55,34 @@ import com.edom.database.DataInTable;
 
 public class MainActivity extends Activity {
 
+	   String[] WagArrStr ={
+			    "825496873984762923",
+			    "653095872408856462",
+			    "937562103412474890",
+			    "934586721095672413",
+			    "279104753724762524",
+			    "745146978245600281",
+			    "385756027697634183",
+			    "834557291157491278",
+			    "037561364893679159",
+			    "305712587254629341"};
+	
+    static byte[][] WagArr= new byte[10][18];
+	
 	public TextView tw;
 	public ImageView MicrophonView;
 	public ImageView MicrophonGlameView;
 	
 	public int licznik=0;
 	public static final ArrayList<String> DataIn = new ArrayList<String>();  
+	public static  int 	equalizer=0;
+	protected AudioManager mAudioManager; 
 	
 	  private SoundPool soundPool;
 	  private int soundID;
 	  boolean loaded = false;
+	  
+	public static  boolean 	manualListenActive=false;  
 	
 	public static String currentViewDiscriptionType="";
 	public static String currentViewDiscriptionPlace="";
@@ -74,7 +99,6 @@ public class MainActivity extends Activity {
 	private Uri DataInUri;
 	
     //RecognitionListener *******************
-    private TextView mText;
     private SpeechRecognizer sr;
     private static final String TAG = "MainActivity";
 	private Intent intentVoice;
@@ -91,12 +115,28 @@ public class MainActivity extends Activity {
 
     boolean voiceServerBusy=false;
     char 	endOfSpeachWait;
+    boolean listenActive=false;
+    private SharedPreferences preferences;
+    boolean app_speaker;
+    boolean listen_const;
+    boolean applicationActive=false;
+    boolean firstLoop=true;
+    public static List<String> ObjestsList=new ArrayList<String>();
+    
+    private String websiteOld;
+    private String controller_idOld;
+    private String activeCodeOld;
+    
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+	
+		
+		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+		StrictMode.setThreadPolicy(policy); 
 		
 		
 		//IntentVoice------------------------------------------------------------------------------------
@@ -112,90 +152,29 @@ public class MainActivity extends Activity {
 		
 		intent = new Intent(this, InputList.class);
 		
-
-
-		CharSequence uri = "http://www.ceuron.pl/Test/_db3131385.csv"; 
-		String st=urlGet(String.valueOf(uri));		
-		String STAB[]=st.split("\n");
 		
-		ContentValues entry = new ContentValues();
-		
-		
-
-		
-		//ImageButton btTmp = (ImageButton)findViewById(R.id.button_all_home);
-		//btTmp.setAlpha(100);
 		
 		MicrophonView  = (ImageView)findViewById(R.id.microphone);	
 		MicrophonGlameView  = (ImageView)findViewById(R.id.mikrophone_tlo);	
 		MicrophonGlameView.setAlpha(2);
 		
-		Uri.encode("<?xml version='1.0' encoding='utf-8'?>");
-		getContentResolver().delete(DataInContentProvider.CONTENT_URI, null, null);
-		entry.clear();
-		short i=1;
-		int lnd=0;
-			do{
-				String STAB1_TMP[]=STAB[i].split(";");		
-				
-				String[] STAB1 = new String[20];
-				
-				lnd=STAB1_TMP.length;
-				for (char k=0; k<20; k++)
-				{
-					if (k<lnd)
-					{
-						STAB1[k]=STAB1_TMP[k];
-					}
-					else{
-						STAB1[k]=" ";
-					}
 		
-					
-				}
-				
-				
-				entry.put(DataInTable.COLUMN_OBJECT_NAME, 	STAB1[0]);
-				entry.put(DataInTable.COLUMN_OBJECT_TYPE, 	STAB1[1]);
-				entry.put(DataInTable.COLUMN_OBJECT_PLACE, 	STAB1[2]);
-				entry.put(DataInTable.COLUMN_OBJECT_FLOOR, 	STAB1[3]);
-				entry.put(DataInTable.COLUMN_SIGNAL_ST_A, 	STAB1[4]);
-				entry.put(DataInTable.COLUMN_SIGNAL_ST_B, 	STAB1[5]);
-				entry.put(DataInTable.COLUMN_SIGNAL_ST_C, 	STAB1[6]);
-				entry.put(DataInTable.COLUMN_SIGNAL_ST_D, 	STAB1[7]);
-				entry.put(DataInTable.COLUMN_UNIT_OFF, 		STAB1[8]);
-				entry.put(DataInTable.COLUMN_UNIT_VALUE_A, 	STAB1[9]);
-				entry.put(DataInTable.COLUMN_UNIT_VALUE_B, 	STAB1[10]);
-				entry.put(DataInTable.COLUMN_UNIT_VALUE_C, 	STAB1[11]);
-				entry.put(DataInTable.COLUMN_UNIT_VALUE_D, 	STAB1[12]);
-				entry.put(DataInTable.COLUMN_ACTION_A, 		STAB1[13]);
-				entry.put(DataInTable.COLUMN_ACTION_B, 		STAB1[14]);
-				entry.put(DataInTable.COLUMN_TAGS_OBJECT, 	STAB1[15]);
-				entry.put(DataInTable.COLUMN_TAGS_PLACE, 	STAB1[16]);
-				entry.put(DataInTable.COLUMN_TAGS_DETAILS, STAB1[17]);
-				entry.put(DataInTable.COLUMN_TAGS_COMMAND_A,STAB1[18]);
-				entry.put(DataInTable.COLUMN_TAGS_COMMAND_B,STAB1[19]);
-				
-				entry.put(DataInTable.COLUMN_VALUE_ST_A, 	"0");
-				entry.put(DataInTable.COLUMN_VALUE_ST_B, 	"0");
-				entry.put(DataInTable.COLUMN_VALUE_ST_C, 	"0");
-				entry.put(DataInTable.COLUMN_VALUE_ST_D, 	"0");
-				
-				
-				
-				Uri.encode("<?xml version='1.0' encoding='utf-8'?>");
-				DataInUri = getContentResolver().insert(DataInContentProvider.CONTENT_URI, entry);
+		preferences = getSharedPreferences("myPrefs", Activity.MODE_PRIVATE);
+		String website=preferences.getString("website", "");
+		String controller_id=preferences.getString("controller_id", "");
+		app_speaker=preferences.getBoolean("speaker", true);    
+        listen_const=preferences.getBoolean("listen_const", false);  
+        
 
-			      
-				i++;
-			}while(i<STAB.length);
-	   
-			
+        
+        
+        
+
+        
 		
-			entry=null;
-			st=null;
-			STAB=null;
-			uri=null;
+
+			
+
 			
 	   
 	   
@@ -205,14 +184,16 @@ public class MainActivity extends Activity {
 		
 		
 
-        //startService(new Intent(MainActivity.this,myService.class));
+      
 
               
         
-        mText = (TextView) findViewById(R.id.textView1);     
+    
         sr = SpeechRecognizer.createSpeechRecognizer(this);       
         sr.setRecognitionListener(new listener());
         //ImageButton speakButton = (ImageButton) findViewById(R.id.buttonVoice);
+        
+        
         
         
         
@@ -228,15 +209,512 @@ public class MainActivity extends Activity {
 		
 		
 		
-		timer.schedule(timerTask, 100, 1000);
+		timer.schedule(timerTask, 100, 300);
         
 		
-		listenVoiceStart(); 
+		if (listen_const) {
+			listenVoiceStart(); 
+			manualListenActive=true;
+		}
+		
+		
+		
+
+		MicrophonView.setOnClickListener(new OnClickListener() 
+	    {
+	        @Override
+	        public void onClick(View v) 
+	        {
+	        	if (manualListenActive)
+	        	{
+	        		
+	        		listenVoiceStop();
+	        	}else{
+	        		manualListenActive=true;
+	        		listenVoiceStart(); 
+	        	}
+	        }
+	    });
+		
+		
+		
+		for (char x=0; x<18; x++)
+		{
+			for (char y=0; y<10; y++)
+			{
+				WagArr[y][x]=(byte) ((byte) WagArrStr[y].charAt(x) -48);
+			}
+		}
+		
+		
+		
 
 	}
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	 
+	
 
+	
+	@Override
+	protected void onResume(){
+	    super.onResume();
+	    
+	    Log.d("eDom","onResume");
+	    
+		preferences = getSharedPreferences("myPrefs", Activity.MODE_PRIVATE);
+		String website=preferences.getString("website", "");
+		String controller_id=preferences.getString("controller_id", "");
+		app_speaker=preferences.getBoolean("speaker", true);    
+        listen_const=preferences.getBoolean("listen_const", false);  
+        
+        String activeCode=preferences.getString("activeCode", "");
+        int startTrialDay =preferences.getInt("startDay", 0);
+
+        SharedPreferences.Editor editor = preferences.edit();
+        
+        
+        String ID_Read=DecodeActivationCode(activeCode);
+        //String ID_Read=DecodeActivationCode("056526081378850544");
+        
+        
+        
+        
+        if ( ((website.equals(websiteOld))==false) ||  ((controller_id.equals(controller_idOld))==false) || ((activeCode.equals(activeCodeOld))==false)  )
+        {
+        	 Log.d("eDom","RozpoczÄ™cie pobierania listy obiektÃ³w");
+        	
+        	
+        	websiteOld=website;
+   	 		controller_idOld=controller_id;
+   	 		activeCodeOld=activeCode;
+        
+        
+		        Log.d("list filetr","Zdekodowane ID "+ID_Read );
+		
+		       
+		        
+		        
+		        
+		        
+		        if (ID_Read.equals( controller_id)==false)
+		        {
+		    		Date now = new Date();
+		    		long t = now.getTime();
+		    		int curTime=(int) (t/1000/60/60/24);
+		        	
+		        	if(startTrialDay==0)
+		        	{
+		        		startTrialDay=(int) curTime;
+		        		editor.putInt("startDay", startTrialDay);
+		        		editor.commit();
+		        	}
+		        	
+		        	startTrialDay =preferences.getInt("startDay", 0);
+		            
+		            int TimeLife=curTime-startTrialDay;
+		            if (TimeLife>40)
+		            {
+		            	applicationActive=false;
+		            	
+		            	if (firstLoop) Toast.makeText(getApplicationContext(), "Okres testowania minÄ…Å‚", Toast.LENGTH_LONG).show();
+		            	
+		            }else{
+		            	applicationActive=true;
+		            	if (firstLoop) Toast.makeText(getApplicationContext(), "Aktywuj aplikacjÄ™.\n PozostaÅ‚o "+Integer.toString(TimeLife=40-TimeLife)+" dni.", Toast.LENGTH_LONG).show();
+		            }
+		
+		        }else{
+		        	applicationActive=true;
+		        }
+		        
+		        
+		        if (applicationActive)
+		        {
+		        	Uri uri=Uri.parse(website+"/_db"+controller_id+".csv");
+		        }
+		        
+		        
+		        
+		        
+		        String st=null;
+		        if (applicationActive)
+		        {
+					Uri uri=Uri.parse(website+"/_db"+controller_id+".csv");
+					st=urlGet(String.valueOf(uri));	
+		        }
+		        
+				if ((st==null) || (website==null) || (controller_id==null) || (applicationActive==false))
+				{
+					if (firstLoop)
+					{
+						Intent intent = new Intent(MainActivity.this, MyPreferences.class);
+		            	startActivity(intent);
+					}else{
+						stopService(new Intent(MainActivity.this, myService.class));
+			        	this.finish();
+					}
+				}else{
+				
+					String STAB[]=st.split("\n");
+				
+				    ContentValues entry = new ContentValues();		
+					Uri.encode("<?xml version='1.0' encoding='utf-8'?>");
+					getContentResolver().delete(DataInContentProvider.CONTENT_URI, null, null);
+					entry.clear();
+					short i=1;
+					int lnd=0;
+						do{
+							String STAB1_TMP[]=STAB[i].split(";");		
+							
+							String[] STAB1 = new String[20];
+							
+							lnd=STAB1_TMP.length;
+							for (char k=0; k<20; k++)
+							{
+								if (k<lnd)
+								{
+									STAB1[k]=STAB1_TMP[k];
+								}
+								else{
+									STAB1[k]=" ";
+								}
+					
+								
+							}
+							
+							
+							entry.put(DataInTable.COLUMN_OBJECT_NAME, 	STAB1[0]);
+							entry.put(DataInTable.COLUMN_OBJECT_TYPE, 	STAB1[1]);
+							entry.put(DataInTable.COLUMN_OBJECT_PLACE, 	STAB1[2]);
+							entry.put(DataInTable.COLUMN_OBJECT_FLOOR, 	STAB1[3]);
+							entry.put(DataInTable.COLUMN_SIGNAL_ST_A, 	STAB1[4]);
+							entry.put(DataInTable.COLUMN_SIGNAL_ST_B, 	STAB1[5]);
+							entry.put(DataInTable.COLUMN_SIGNAL_ST_C, 	STAB1[6]);
+							entry.put(DataInTable.COLUMN_SIGNAL_ST_D, 	STAB1[7]);
+							entry.put(DataInTable.COLUMN_UNIT_OFF, 		STAB1[8]);
+							entry.put(DataInTable.COLUMN_UNIT_VALUE_A, 	STAB1[9]);
+							entry.put(DataInTable.COLUMN_UNIT_VALUE_B, 	STAB1[10]);
+							entry.put(DataInTable.COLUMN_UNIT_VALUE_C, 	STAB1[11]);
+							entry.put(DataInTable.COLUMN_UNIT_VALUE_D, 	STAB1[12]);
+							entry.put(DataInTable.COLUMN_ACTION_A, 		STAB1[13]);
+							entry.put(DataInTable.COLUMN_ACTION_B, 		STAB1[14]);
+							entry.put(DataInTable.COLUMN_TAGS_OBJECT, 	STAB1[15]);
+							entry.put(DataInTable.COLUMN_TAGS_PLACE, 	STAB1[16]);
+							entry.put(DataInTable.COLUMN_TAGS_DETAILS, STAB1[17]);
+							entry.put(DataInTable.COLUMN_TAGS_COMMAND_A,STAB1[18]);
+							entry.put(DataInTable.COLUMN_TAGS_COMMAND_B,STAB1[19]);
+							
+							entry.put(DataInTable.COLUMN_VALUE_ST_A, 	"0");
+							entry.put(DataInTable.COLUMN_VALUE_ST_B, 	"0");
+							entry.put(DataInTable.COLUMN_VALUE_ST_C, 	"0");
+							entry.put(DataInTable.COLUMN_VALUE_ST_D, 	"0");
+							
+							
+							
+							Uri.encode("<?xml version='1.0' encoding='utf-8'?>");
+							DataInUri = getContentResolver().insert(DataInContentProvider.CONTENT_URI, entry);
+			
+						      
+							i++;
+						}while(i<STAB.length);
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						//pobranie listy obiektÃ³w ------------------------------------------------------------------------------------------
+						
+						
+						
+		
+				        Cursor cursor = getContentResolver().query(DataInContentProvider.CONTENT_URI, new String[] {DataInTable.COLUMN_OBJECT_NAME, DataInTable.COLUMN_OBJECT_TYPE, DataInTable.COLUMN_OBJECT_PLACE,DataInTable.COLUMN_OBJECT_FLOOR}, " 1=1 ) GROUP BY ("+DataInTable.COLUMN_OBJECT_TYPE,null,null);		
+				        
+						
+				        List<String> spinnerListFiltrTMP=new ArrayList<String>();
+				        List<String> PlacesForSpiner=new ArrayList<String>();
+				        int SpinerItem=0;
+				        int idx=0;
+				        
+				        
+				        ObjestsList.clear();
+				        if (cursor.getCount()>0)
+				        {
+		
+				        	idx++;
+						    	if(cursor.moveToFirst()){ //Metoda zwraca FALSE jesli cursor jest pusty
+						    		
+						    		Log.d("list filetr","C" );
+		
+				  	  	    	       do{
+				  	  	    	    	  String place=cursor.getString(cursor.getColumnIndex(DataInTable.COLUMN_OBJECT_TYPE));
+				  	  	    	    	
+				  	  	    	    	  for (String Plc: PlacesForSpiner)
+				  	  	    	    	  {
+				  	  	    	    		if (place.contains(Plc))
+					  	  	    	    	  {
+				  	  	    	    		
+					  	  	    	    		//spinnerListFiltrTMP.add(place.toUpperCase());
+					  	  	    	    	    spinnerListFiltrTMP.add(place);
+					  	  	    	    		SpinerItem=idx;
+					  	  	    	    		break;
+					  	  	    	    	  } 
+				  	  	    	    	  }
+				  	  	    	    	  
+				  	  	    	    	  
+				  	  	    	    	idx++; 
+				  	  	 
+				  	  	    	    //ObjestsList.add(place.toUpperCase());
+				  	  	    	    	
+				  	  	    	    ObjestsList.add(place);
+				  	  	    	    	
+				  	  	    	       }while(cursor.moveToNext());
+						    	}
+				        }
+				        
+				  
+				        if (spinnerListFiltrTMP.size()>1)
+				        {
+				        	if (spinnerListFiltrTMP.size()<ObjestsList.size()-1)
+				        	{
+				        		ObjestsList.add(0, spinnerListFiltrTMP.toString().replace("[", "").replace("]", ""));
+				        	}
+				        
+				        	SpinerItem=0;
+				        }
+				        
+				       
+				        
+				       
+				   
+				        
+				        
+				        ImageButton ButtonObject;
+				        ButtonObject  = (ImageButton)findViewById(R.id.Button1);
+				        
+				        
+				        //wyÅ‚Ä…czenie widocznoÅ›ci
+				        for (int BtNr=ObjestsList.size(); BtNr<=6; BtNr++)
+				        {
+				        	
+				        	
+				        	switch (BtNr) {
+					  	      case 1:
+					  	    	ButtonObject  = (ImageButton)findViewById(R.id.Button1);	
+					  	    	break;
+					  	      case 2:
+					  	    	ButtonObject  = (ImageButton)findViewById(R.id.Button2);	
+					  	    	break;
+					  	      case 3:
+					  	    	ButtonObject  = (ImageButton)findViewById(R.id.Button3);	
+					  	    	break;
+					  	      case 4:
+					  	    	ButtonObject  = (ImageButton)findViewById(R.id.Button4);	
+				  	    		break;
+					  	      case 5:
+					  	    	ButtonObject  = (ImageButton)findViewById(R.id.Button5);	
+				  	    		break;
+					  	      case 6:
+					  	    	ButtonObject  = (ImageButton)findViewById(R.id.Button6);	
+				  	    		break;
+				        	}
+				        	ButtonObject.setVisibility(View.INVISIBLE);
+				        }
+				        
+				        
+				        
+				        char BtNr=0;
+				        for (String ObjectType : ObjestsList)
+				        {
+				        	BtNr++;
+				        	DrowButton(BtNr,ObjectType);
+				        }
+				        
+				        if (BtNr<6)
+				        {
+				        	BtNr++;
+				        	DrowButton(BtNr,"www");
+				        }
+				        
+			
+						
+				} 
+				
+				Log.d("eDom","ZakoÅ„czenie pobierania listy obiektÃ³w");
+		        
+        }//koniec if ( ((website.equals(websiteOld))==false) ||  ((controller_id.equals(controller_idOld))==false) || ((activeCode.equals(activeCodeOld))==false)  )
+
+        
+        
+        
+        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (listen_const)
+        {
+        	mAudioManager.setStreamMute(AudioManager.STREAM_SYSTEM, true);
+        }else{
+
+            mAudioManager.setStreamMute(AudioManager.STREAM_SYSTEM, false);	
+        }
+
+        
+        
+        if(firstLoop) 
+        	{
+        	  Log.d("eDom","Pruba uruchomienia serwisu");
+              if (isMyServiceRunning()==false)
+              {
+            	  startService(new Intent(MainActivity.this,myService.class));
+              }else{
+            	  Log.d("eDom","Serwis juÅ¼ jest uruchomiony");
+              }
+        	   
+        	}
+        
+        firstLoop=false;
+        
+        Log.d("eDom","Koniec onResume");
+	}
+	
+
+	
+	
+
+	 private boolean isMyServiceRunning() {
+		    ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+		    for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+		        if (myService.class.getName().equals(service.service.getClassName())) {
+		            return true;
+		        }
+		    }
+		    return false;
+		}
+	
+	
+	
+	public void DrowButton(char BtNr, String ObjectType)
+	{
+
+		ImageButton ButtonObject;
+        ButtonObject  = (ImageButton)findViewById(R.id.Button1);
+		
+
+        	
+       
+    	    switch (BtNr) {
+	  	      case 1:
+	  	    	ButtonObject  = (ImageButton)findViewById(R.id.Button1);	
+	  	    	break;
+	  	      case 2:
+	  	    	ButtonObject  = (ImageButton)findViewById(R.id.Button2);	
+	  	    	break;
+	  	      case 3:
+	  	    	ButtonObject  = (ImageButton)findViewById(R.id.Button3);	
+	  	    	break;
+	  	      case 4:
+	  	    	ButtonObject  = (ImageButton)findViewById(R.id.Button4);	
+  	    		break;
+	  	      case 5:
+	  	    	ButtonObject  = (ImageButton)findViewById(R.id.Button5);	
+  	    		break;
+	  	      case 6:
+	  	    	ButtonObject  = (ImageButton)findViewById(R.id.Button6);	
+  	    		break;
+  	    		
+  	    		
+    	    }
+        	
+
+    	    if (ObjectType=="www")
+        	{
+        		ButtonObject.setImageResource(R.drawable.www);
+        	}
+        	else if (ObjectType=="light")
+        	{
+        		ButtonObject.setImageResource(R.drawable.lights);
+        	}
+        	else if (ObjectType=="blinds")
+        	{
+        		ButtonObject.setImageResource(R.drawable.blinds);
+        	}else if (ObjectType=="temperature")
+        	{
+        		ButtonObject.setImageResource(R.drawable.themperature);
+        	}
+        	
+        	ButtonObject.setVisibility(View.VISIBLE);	
+       
+		
+	}
+	
+	
+	
+	static public   String DecodeActivationCode(String Reg_Code)
+	{
+		String ID_Txt="";
+		byte KodTmp[]=new byte[18], WagaTyp;
+		//char ID[]=new char[7];
+		Integer sum, ID_Period;
+		String StrTmp;
+		boolean SumKontrol;
+		
+
+		if (Reg_Code.length()!=18) return "";		    
+		
+		
+					  for (char i=0; i<=17; i++) 
+						  {
+		
+						    KodTmp[i]=(byte) ((byte) Reg_Code.charAt(i) -48);
+						  }
+
+				      
+
+				      //dekodowanie
+				      WagaTyp=KodTmp[17];
+				      sum=0;
+				      for (char i=0; i<=16; i++)
+				       {
+				             if (  (KodTmp[i]<(WagArr[WagaTyp][i]))) 
+				             {
+				                KodTmp[i]= (byte) (10+ KodTmp[i]-(WagArr[WagaTyp][i]));
+				             } else {                
+				                KodTmp[i]=(byte) (KodTmp[i]-(WagArr[WagaTyp][i]));
+				             }
+				             if (i<15) sum=sum+KodTmp[i];
+				       }
+				       
+				       
+				       ID_Period=KodTmp[12]*10 +  KodTmp[14];
+				       
+				       SumKontrol=false;
+				       if ((KodTmp[15]==(sum / 10)) && (KodTmp[16]==sum % 10))  SumKontrol=true;
+
+				       
+				       if (SumKontrol)
+				       {
+					       ID_Txt=Integer.toString(KodTmp[8]);
+					       ID_Txt+=Integer.toString(KodTmp[2]);
+					       ID_Txt+=Integer.toString(KodTmp[10]);
+					       ID_Txt+=Integer.toString(KodTmp[6]);
+					       ID_Txt+=Integer.toString(KodTmp[0]);
+					       ID_Txt+=Integer.toString(KodTmp[4]);
+					       ID_Txt+=Integer.toString(KodTmp[13]);
+				       }
+
+		
+		return ID_Txt;
+	}
+	
 	
 	
 	
@@ -249,9 +727,9 @@ public class MainActivity extends Activity {
   	  
   		    public void handleMessage(Message msg) {
   		    	
-  		    	licznik++;
-  		    	TextView TextCounter = (TextView) findViewById(R.id.textlicz);     
-  		    	 TextCounter.setText("nr."+licznik);
+  		    	//licznik++;
+  		    	//TextView TextCounter = (TextView) findViewById(R.id.textlicz);     
+  		    	// TextCounter.setText("nr."+licznik);
   		    	 
   		    	 if (endOfSpeachWait==1)
   		    	 {
@@ -259,7 +737,7 @@ public class MainActivity extends Activity {
   		    		listenVoiceStart();  
   		    	 }
   		    	 if (endOfSpeachWait>0)endOfSpeachWait--;
-  		    	 
+  		   
   		    	
   		    };
     };
@@ -286,28 +764,71 @@ public class MainActivity extends Activity {
 	
 	
 	public void ButtonOnClick(View v) {
+		
+
+		
+	  //int ObjNr=ObjestsList.size();
+	  int ButtonNr=0;
+	  
+		
 	    switch (v.getId()) {
-	      case R.id.button_all_home:
-	    	  intent.putExtra("filterObjectType", "");
-	        break;
+
 	      case R.id.Button1:
-	    	  intent.putExtra("filterObjectType", "light");
-	        break;
+	    	  ButtonNr=1;
+//	    	  intent.putExtra("filterObjectType", "light");
+	      break;
 	      case R.id.Button2:
-	    	  intent.putExtra("filterObjectType", "blinds");
+	    	  ButtonNr=2;
+//	    	  intent.putExtra("filterObjectType", "blinds");
 		    break; 
 	      case R.id.Button3:
-	    	  intent.putExtra("filterObjectType", "temperature");
+	    	  ButtonNr=3;
+//	    	  intent.putExtra("filterObjectType", "temperature");
+		    break; 
+	      case R.id.Button4:
+	    	  ButtonNr=4;
+//	    	  intent.putExtra("filterObjectType", "temperature");
+		    break; 
+	      case R.id.Button5:
+	    	  ButtonNr=5;
+//	    	  intent.putExtra("filterObjectType", "temperature");
 		    break; 
 	      case R.id.Button6:
-	    	  
-	    	  intent = new Intent(this, wwwActivity.class);
-	    	  intent.putExtra("WebSite", "http://www.ceuron.pl");
-//gggg
-		    break;   
+	    	  ButtonNr=6;
+//	    	  intent = new Intent(this, wwwActivity.class);
+//	    	  intent.putExtra("WebSite", website);
+		  break;   
+		  
+
+		  
+		  
+		    
+		    
+	      case R.id.button_all_home:
+	    	  intent.putExtra("filterObjectType", "");
+	      break; 
 		    
 	        
 	      }
+	    
+	    
+	    
+		  if (ButtonNr>0)
+		  {
+			  
+			 if (ButtonNr>ObjestsList.size()) //jeÅ¼eli wybrano wszystkie kategorie
+			 {
+			     preferences = getSharedPreferences("myPrefs", Activity.MODE_PRIVATE);
+			  	 String website=preferences.getString("website", "");
+				 intent = new Intent(this, wwwActivity.class);
+		    	 intent.putExtra("WebSite", website); 
+			 }else{ //jeÅ¼eli wybrano jednÄ… kategoriÄ™ obiektÃ³w
+				 intent.putExtra("filterObjectType", ObjestsList.get(ButtonNr-1) ); 
+			 }
+	
+		  }
+	    
+	    
 	    startActivity(intent);
 	    intent = new Intent(this, InputList.class);
 	    //intent.removeCategory("filterPlace");
@@ -336,8 +857,9 @@ public class MainActivity extends Activity {
         switch (item.getItemId()) {
  
         case R.id.menu_settings:
-            ktoryElement = "pierwszy";
-            
+         
+            Intent intent = new Intent(MainActivity.this, MyPreferences.class);
+            startActivity(intent);
             break;
         case R.id.menu_zamknij:
         	stopService(new Intent(MainActivity.this, myService.class));
@@ -358,10 +880,18 @@ public class MainActivity extends Activity {
 	        URL url = null;
 	        String string = null;
 	         
+
+
+	          
+	        
+	        
+	        
 	        try {
 	   url = new URL(urlString);
 	   urlConnection = url.openConnection();
-	    
+   
+
+  
 	   InputStream inputStream = urlConnection.getInputStream();
 	   InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
 	   BufferedReader reader = new BufferedReader(inputStreamReader);
@@ -404,7 +934,7 @@ public class MainActivity extends Activity {
     //speach
     public class listener implements RecognitionListener          
     {
-    		 private boolean listenActive=false;
+    		 
     	
              public void onReadyForSpeech(Bundle params)
              {
@@ -429,11 +959,17 @@ public class MainActivity extends Activity {
             		 LastRms[i]=LastRms[i-1];
             	 }
             	 Val+=LastRms[0];
-            	 Val+=40;
+            	 Val+=100;
             	 
             	 
-            	 if (Val>60) Val=60;
+            	 if (Val>200) Val=200;
 
+            	 
+            	 //intent.putExtra("equalizer", Val);
+            	 //equalizer=Val;
+            	 
+            	 //InputList.handleToClose.
+            	 
             	 MicrophonGlameView.setAlpha(Val); 
 
               
@@ -448,10 +984,20 @@ public class MainActivity extends Activity {
             	 Log.d("Voice analize", "onEndofSpeech");
             	      listenActive=false;
             	      
-            	      //listenVoiceStart(); 
-            	      MicrophonView.setAlpha(80);
-            	      MicrophonGlameView.setAlpha(0); 
-            	      endOfSpeachWait=2;
+            	      
+            	      if (listen_const) {
+            	    	  
+                 	      MicrophonView.setAlpha(80);
+                	      MicrophonGlameView.setAlpha(0); 
+                	      endOfSpeachWait=2;
+            	    	  
+                        }else{
+                        	
+                        	MicrophonView.setAlpha(0xFF);	
+                      	  MicrophonGlameView.setVisibility(View.INVISIBLE);  
+                      	  manualListenActive=false; 
+            		      }   
+            	      
                       
              }
              public void onError(int error)
@@ -459,8 +1005,13 @@ public class MainActivity extends Activity {
             	 
             	 listenActive=false;
             	 //voiceServerBusy=true;
+            	 
+            	 if (listen_const) {
             	 MicrophonView.setAlpha(80);
        	         MicrophonGlameView.setAlpha(0); 
+            	 }else{
+            		 MicrophonView.setAlpha(0xFF); 
+            	 }
        		     
 
                       Log.d("Voice analize",  "error " +  error);
@@ -474,13 +1025,21 @@ public class MainActivity extends Activity {
                     		  
                     	  }
                     
-                    listenVoiceStart();  
+                    //listenVoiceStart();  
+                    
+                    if (listen_const) {
+                    	listenVoiceStart();  
+                      }else{
+                    	  MicrophonGlameView.setVisibility(View.INVISIBLE);  
+                    	  manualListenActive=false; 
+          		      }
+                 
                      
              }
              public void onResults(Bundle results)                   
              {
             	 endOfSpeachWait=0;
-            	 if (listenActive==false) listenVoiceStart(); 
+            	 //if (listenActive==false) listenVoiceStart(); 
             	 
             	 
                       String str = new String();
@@ -514,42 +1073,41 @@ public class MainActivity extends Activity {
                       		WhatHear=WhatHear+frase+"\n";
                       }
                       
-                      
-                      
 
-
-                      //SoundPool soundID = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
                       if (action==true)
                       {
                   		
-
-/*                		int iTmp = soundID.load(getApplicationContext(), R.raw.wykonalem_polecenie, 1); // in 2nd param u have to pass your desire ringtone
-                		soundID.play(iTmp, 1, 1, 0, 0, 1);
-                		MediaPlayer mPlayer = MediaPlayer.create(getApplicationContext(), R.raw.wykonalem_polecenie); // in 2nd param u have to pass your desire ringtone
-                		mPlayer.start();
-                	
-                		mText.setText(""); */
+                    	  if (app_speaker==true)
+                          {
+	                		Context appContext = getApplicationContext();
+	                        MediaPlayer mp = MediaPlayer.create(appContext , R.raw.wykonalem_polecenie);
+	                        mp.start();
+                          }
                     	  
-                    	  
-                    	  Toast.makeText(getApplicationContext(), "Wykonuje komendê g³osow¹: \n"+ExeCommand, Toast.LENGTH_SHORT).show();
+                    	  Toast.makeText(getApplicationContext(), "Wykonuje komendÄ™ gÅ‚osowÄ…: \n"+ExeCommand, Toast.LENGTH_SHORT).show();
+                    	  if ((listenActive==false) && (listen_const)) 
+                    		  {
+                    		  	listenVoiceStart();   
+                    		  
+                    		  }else{
+                    			  MicrophonGlameView.setVisibility(View.INVISIBLE);   
+                    			  manualListenActive=false; 
+                    		  }
                       }else{
-/*                    	int iTmp = soundID.load(getApplicationContext(), R.raw.niezrozumialem_powtorz, 1); // in 2nd param u have to pass your desire ringtone
-                  		soundID.play(iTmp, 1, 1, 0, 0, 1);
-                  		MediaPlayer mPlayer = MediaPlayer.create(getApplicationContext(), R.raw.niezrozumialem_powtorz); // in 2nd param u have to pass your desire ringtone
-                  		mPlayer.start(); */
+
+                    	  Toast.makeText(getApplicationContext(), "ZrozumiaÅ‚em coÅ› w rodzaju:\n\n"+WhatHear, Toast.LENGTH_LONG).show();
+                    	  if (app_speaker==true)
+                          {
+	                  		Context appContext = getApplicationContext();
+	                        MediaPlayer mp = MediaPlayer.create(appContext , R.raw.niezrozumialem_powtorz);
+	                        mp.start();
+                          }
+                    	  if (listenActive==false ) listenVoiceStart();   
                   		
-                  		mText.setText("S³ucham"); 
-                    	  
-                  		
-                  		
-                  
-                    	 
-                  		Toast.makeText(getApplicationContext(), "Zrozumia³em coœ w rodzaju:\n\n"+WhatHear, Toast.LENGTH_LONG).show();
                       }
                       
-                      
-                      
-                     
+                          
+               
                       
                       
              }
@@ -568,7 +1126,15 @@ public class MainActivity extends Activity {
      		private void ForseStartListen()
     		{
      			Log.d("Voice analize",  "Forse lisenVoiceStart ");
-     			if (listenActive==false) listenVoiceStart(); 
+
+     			
+     			
+     			if (listen_const) {
+     				if (listenActive==false) listenVoiceStart();  
+                  }else{
+                	  MicrophonGlameView.setVisibility(View.INVISIBLE);  
+                	  manualListenActive=false; 
+      		      }
     		}
      		
     
@@ -581,21 +1147,27 @@ public class MainActivity extends Activity {
     private void listenVoiceStart()
  	    {
     		//sr.destroy();
-
+    	         
  	             sr.startListening(intentVoice);
- 	             
 
  	             Log.i("Voice analize","lisenVoiceStart");
  	             
  	            MicrophonView.setVisibility(View.VISIBLE);  
- 	            MicrophonGlameView.setVisibility(View.VISIBLE); 
- 	           
- 	         
- 	           
- 	             
+ 	            MicrophonGlameView.setVisibility(View.VISIBLE);     
  	    }
     
-    
+    private void listenVoiceStop()
+	    {
+		//sr.destroy();
+
+	             sr.stopListening();//(intentVoice);
+
+	             Log.i("Voice analize","stopListening");
+	             
+	            //MicrophonView.setVisibility(View.INVISIBLE);  
+	            MicrophonGlameView.setVisibility(View.INVISIBLE);   
+	            manualListenActive=false; 
+	    }    
     
 
         
@@ -639,7 +1211,7 @@ private boolean FindPhrase(String str, boolean adjust) {
             wordsTmp=null;
         	
             
-		     
+         // TODO SprawdziÄ‡ poprawnoÅ›Ä‡ wysterowania wielu wÄ™zÅ‚Ã³w
         	
         	
         	Log.d("Voice analize", "Real words to processing: "+words.size()+"   :"+words);
@@ -996,21 +1568,21 @@ void makeVoiceAnalizeList()
 	    		};
 
 	    		//API orders list
-	    		if (voiceAnlizeAPIOpenOrdersList.indexOf("poka¿")==-1) voiceAnlizeAPIOpenOrdersList.append("poka¿"+"\n");
-	    		if (voiceAnlizeAPIOpenOrdersList.indexOf("wyœwietl")==-1) voiceAnlizeAPIOpenOrdersList.append("wyœwietl"+"\n");
+	    		if (voiceAnlizeAPIOpenOrdersList.indexOf("pokaÅ¼")==-1) voiceAnlizeAPIOpenOrdersList.append("pokaÅ¼"+"\n");
+	    		if (voiceAnlizeAPIOpenOrdersList.indexOf("wyÅ›wietl")==-1) voiceAnlizeAPIOpenOrdersList.append("wyÅ›wietl"+"\n");
 	    		if (voiceAnlizeAPIOpenOrdersList.indexOf("daj")==-1) voiceAnlizeAPIOpenOrdersList.append("daj"+"\n");
 	    		if (voiceAnlizeAPIOpenOrdersList.indexOf("widok")==-1) voiceAnlizeAPIOpenOrdersList.append("widok"+"\n");
-	    		if (voiceAnlizeAPIOpenOrdersList.indexOf("wejdŸ")==-1) voiceAnlizeAPIOpenOrdersList.append("wejdŸ"+"\n");
+	    		if (voiceAnlizeAPIOpenOrdersList.indexOf("wejdÅº")==-1) voiceAnlizeAPIOpenOrdersList.append("wejdÅº"+"\n");
 	    		if (voiceAnlizeAPIOpenOrdersList.indexOf("prezentuj")==-1) voiceAnlizeAPIOpenOrdersList.append("prezentuj"+"\n");
 	    		if (voiceAnlizeAPIOpenOrdersList.indexOf("demonstruj")==-1) voiceAnlizeAPIOpenOrdersList.append("demonstruj"+"\n");
 	    		
 
 	    		if (voiceAnlizeAPICloseOrdersList.indexOf("cofnij")==-1) voiceAnlizeAPICloseOrdersList.append("cofnij"+"\n");
-	    		if (voiceAnlizeAPICloseOrdersList.indexOf("wróæ")==-1) voiceAnlizeAPICloseOrdersList.append("wróæ"+"\n");
+	    		if (voiceAnlizeAPICloseOrdersList.indexOf("wrÃ³Ä‡")==-1) voiceAnlizeAPICloseOrdersList.append("wrÃ³Ä‡"+"\n");
 	    		if (voiceAnlizeAPICloseOrdersList.indexOf("wstacz")==-1) voiceAnlizeAPICloseOrdersList.append("wstacz"+"\n");
-	    		if (voiceAnlizeAPICloseOrdersList.indexOf("wyjdŸ")==-1) voiceAnlizeAPICloseOrdersList.append("wyjdŸ"+"\n");
-	    		if (voiceAnlizeAPICloseOrdersList.indexOf("powrót")==-1) voiceAnlizeAPICloseOrdersList.append("powrót"+"\n");
-	    		if (voiceAnlizeAPICloseOrdersList.indexOf("opuœæ")==-1) voiceAnlizeAPICloseOrdersList.append("opuœæ"+"\n");
+	    		if (voiceAnlizeAPICloseOrdersList.indexOf("wyjdÅº")==-1) voiceAnlizeAPICloseOrdersList.append("wyjdÅº"+"\n");
+	    		if (voiceAnlizeAPICloseOrdersList.indexOf("powrÃ³t")==-1) voiceAnlizeAPICloseOrdersList.append("powrÃ³t"+"\n");
+	    		if (voiceAnlizeAPICloseOrdersList.indexOf("opuÅ›Ä‡")==-1) voiceAnlizeAPICloseOrdersList.append("opuÅ›Ä‡"+"\n");
 
 	    		
 	    	  }while(cursor.moveToNext());
@@ -1035,7 +1607,7 @@ void makeVoiceAnalizeList()
 	{
 	 Log.d("Voice analize", " -		Send "+Set+" to signal: "+Signal);
 	
- /*
+
 	    URL url = null;   
 	    String response = null;         
 	    //String parameters = "username="+mUsername+"&password="+mPassword;   
@@ -1081,7 +1653,7 @@ void makeVoiceAnalizeList()
 	    catch(IOException e)
 	    {
 	        // Error
-	    }*/
+	    }
     
 }
  
@@ -1093,9 +1665,12 @@ void makeVoiceAnalizeList()
 	 public void onDestroy() {
 	  super.onDestroy();
 	  //baza.close();	
-	  timer.cancel();
-	  timerTask.cancel();
-	  Toast.makeText(this, "Us³uga Ceuron zosta³a zamkniêta!", Toast.LENGTH_LONG).show();
+	  //timer.cancel();
+	  //timerTask.cancel();
+	  stopService(new Intent(MainActivity.this, myService.class));
+
+	  Toast.makeText(this, "Zamykam eDom", Toast.LENGTH_SHORT).show();
+
 	 }
 	    
 	    
