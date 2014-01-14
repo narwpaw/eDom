@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    
+    
+    <PreferenceCategory 
+        android:title="USTAWIENIA SERWERA">
+        
+        <EditTextPreference 
+            android:dialogTitle="Tytuł okna dialogowego" 
+            android:key="website" 
+            android:summary="Pole typu EditText" 
+            android:positiveButtonText="OK" 
+            android:negativeButtonText="Anuluj" 
+            android:dialogMessage="Adres strony internetowej twojego domu" 
+            android:title="Adres strony www" />
+        
+        <EditTextPreference 
+            android:dialogTitle="Tytuł okna dialogowego" 
+            android:key="controller_id" 
+            android:summary="Pole typu EditText" 
+            android:positiveButtonText="OK" 
+            android:negativeButtonText="Anuluj" 
+            android:dialogMessage="Numer ID sterownika" 
+            android:title="Numer ID sterownika" 
+            android:inputType="numberPassword"
+            />
+        
+
+        
+    </PreferenceCategory>
+    
+
+    
+    <PreferenceCategory 
+        android:title="USTAWIENIA APLIKACJI">
+        
+        
+        <CheckBoxPreference 
+            android:defaultValue="false" 
+            android:summary="Ciągłe rozpoznawanie mowy " 
+            android:key="listen_const" 
+            android:title="Stałe nasłuchiwanie" />   
+            
+        <CheckBoxPreference 
+            android:defaultValue="false" 
+            android:key="speaker" 
+            android:title="Potwierdzenia głosowe" />   
+        
+
+    </PreferenceCategory>
+    
+
+
+     <PreferenceCategory 
+        	android:title="AKTYWACJA APLIKACJI">
+        
+
+        <EditTextPreference 
+            android:dialogTitle="Kod aktywacyjny" 
+            android:key="activeCode" 
+            android:summary="Pozostało 30 dni" 
+            android:positiveButtonText="OK" 
+            android:negativeButtonText="Anuluj" 
+            android:dialogMessage="Wpisz kod aktywacyjny" 
+            android:title="Wpisz kod aktywacyjny" 
+            android:inputType="number"
+
+            />
+            
+    </PreferenceCategory>  
+
+    
+    
+    <PreferenceCategory 
+        android:title="O PROGRAMIE">
+        
+
+         <Preference android:title="eDom" android:summary="1.0 Beta"/>
+         <Preference android:title="Ceuron Sp. z o.o." android:summary="www.ceuron.pl"/>  
+
+    </PreferenceCategory>   
+     
+
+</PreferenceScreen>
